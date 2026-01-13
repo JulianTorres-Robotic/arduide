@@ -2,95 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Arduino IDE Dark Theme Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Arduino teal brand color */
+    --arduino-teal: 174 100% 30%;
+    --arduino-teal-light: 174 80% 45%;
+    --arduino-teal-dark: 174 100% 20%;
+    
+    /* Dark theme base */
+    --background: 220 20% 10%;
+    --foreground: 210 20% 90%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 18% 13%;
+    --card-foreground: 210 20% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 18% 15%;
+    --popover-foreground: 210 20% 90%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 174 100% 30%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 210 20% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 15% 16%;
+    --muted-foreground: 215 15% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 174 80% 25%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 174 100% 30%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Panel colors */
+    --panel-bg: 220 18% 12%;
+    --panel-header: 220 18% 14%;
+    --panel-border: 220 15% 18%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Syntax highlighting */
+    --syntax-keyword: 280 80% 70%;
+    --syntax-string: 95 70% 55%;
+    --syntax-number: 30 90% 60%;
+    --syntax-comment: 215 15% 45%;
+    --syntax-function: 200 90% 65%;
+    --syntax-variable: 35 90% 70%;
+    --syntax-type: 174 80% 60%;
+    --syntax-operator: 0 0% 80%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Status colors */
+    --status-connected: 142 70% 45%;
+    --status-disconnected: 0 70% 50%;
+    --status-connecting: 38 92% 50%;
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 220 18% 11%;
+    --sidebar-foreground: 210 20% 85%;
+    --sidebar-primary: 174 100% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 174 100% 30%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Already dark by default */
   }
 }
 
@@ -100,6 +90,162 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--panel-bg));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer components {
+  /* IDE Panel styling */
+  .ide-panel {
+    @apply bg-[hsl(var(--panel-bg))] border border-[hsl(var(--panel-border))] rounded-lg overflow-hidden;
+  }
+
+  .ide-panel-header {
+    @apply bg-[hsl(var(--panel-header))] px-3 py-2 flex items-center gap-2 border-b border-[hsl(var(--panel-border))];
+  }
+
+  /* Toolbar button */
+  .toolbar-btn {
+    @apply flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200;
+    @apply bg-secondary text-secondary-foreground;
+    @apply hover:bg-primary hover:text-primary-foreground;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .toolbar-btn-primary {
+    @apply toolbar-btn bg-primary text-primary-foreground;
+    @apply hover:bg-[hsl(var(--arduino-teal-light))];
+  }
+
+  /* Status indicator */
+  .status-dot {
+    @apply w-2 h-2 rounded-full animate-pulse;
+  }
+
+  .status-connected {
+    @apply bg-[hsl(var(--status-connected))];
+  }
+
+  .status-disconnected {
+    @apply bg-[hsl(var(--status-disconnected))];
+  }
+
+  .status-connecting {
+    @apply bg-[hsl(var(--status-connecting))];
+  }
+
+  /* Code block styling */
+  .code-block {
+    @apply font-mono text-sm leading-relaxed;
+    background: hsl(var(--panel-bg));
+  }
+
+  /* Blockly container */
+  .blockly-container {
+    @apply w-full h-full rounded-lg overflow-hidden;
+  }
+
+  /* Tab styling */
+  .ide-tab {
+    @apply px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 border-transparent;
+    @apply text-muted-foreground hover:text-foreground;
+  }
+
+  .ide-tab-active {
+    @apply text-primary border-primary;
+  }
+
+  /* Console output */
+  .console-line {
+    @apply font-mono text-xs leading-relaxed py-0.5;
+  }
+
+  .console-error {
+    @apply text-[hsl(var(--destructive))];
+  }
+
+  .console-warning {
+    @apply text-[hsl(var(--warning))];
+  }
+
+  .console-success {
+    @apply text-[hsl(var(--success))];
+  }
+
+  .console-info {
+    @apply text-muted-foreground;
+  }
+}
+
+@layer utilities {
+  /* Glow effects */
+  .glow-teal {
+    box-shadow: 0 0 20px hsl(var(--arduino-teal) / 0.3);
+  }
+
+  .glow-teal-sm {
+    box-shadow: 0 0 10px hsl(var(--arduino-teal) / 0.2);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Prism.js overrides for Arduino C++ */
+  .token.comment { color: hsl(var(--syntax-comment)); }
+  .token.string { color: hsl(var(--syntax-string)); }
+  .token.number { color: hsl(var(--syntax-number)); }
+  .token.keyword { color: hsl(var(--syntax-keyword)); }
+  .token.function { color: hsl(var(--syntax-function)); }
+  .token.operator { color: hsl(var(--syntax-operator)); }
+  .token.class-name { color: hsl(var(--syntax-type)); }
+  .token.variable { color: hsl(var(--syntax-variable)); }
+  .token.builtin { color: hsl(var(--syntax-type)); }
 }
