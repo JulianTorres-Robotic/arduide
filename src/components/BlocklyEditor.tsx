@@ -1,0 +1,199 @@
+import React, { useEffect, useRef, useCallback } from 'react';
+import * as Blockly from 'blockly';
+import { defineArduinoBlocks, createArduinoGenerator, arduinoToolbox } from '@/lib/arduino-blocks';
+import { useIDE } from '@/contexts/IDEContext';
+
+interface BlocklyEditorProps {
+  onCodeChange?: (code: string) => void;
+  initialXml?: string;
+}
+
+const BlocklyEditor: React.FC<BlocklyEditorProps> = ({ onCodeChange, initialXml }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
+  const generatorRef = useRef<any>(null);
+  const { setGeneratedCode, addConsoleMessage } = useIDE();
+
+  const generateCode = useCallback(() => {
+    if (!workspaceRef.current || !generatorRef.current) return;
+    
+    try {
+      generatorRef.current.init(workspaceRef.current);
+      const code = generatorRef.current.workspaceToCode(workspaceRef.current);
+      setGeneratedCode(code);
+      onCodeChange?.(code);
+    } catch (error) {
+      console.error('Code generation error:', error);
+      addConsoleMessage('error', `Code generation error: ${error}`);
+    }
+  }, [setGeneratedCode, onCodeChange, addConsoleMessage]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // Define Arduino blocks
+    defineArduinoBlocks();
+    
+    // Create generator
+    generatorRef.current = createArduinoGenerator();
+
+    // Create workspace with dark theme
+    const darkTheme = Blockly.Theme.defineTheme('arduino-dark', {
+      name: 'arduino-dark',
+      base: Blockly.Themes.Classic,
+      componentStyles: {
+        workspaceBackgroundColour: '#1a1f2e',
+        toolboxBackgroundColour: '#151922',
+        toolboxForegroundColour: '#e0e0e0',
+        flyoutBackgroundColour: '#1e2433',
+        flyoutForegroundColour: '#e0e0e0',
+        flyoutOpacity: 0.95,
+        scrollbarColour: '#2d3548',
+        insertionMarkerColour: '#00979d',
+        insertionMarkerOpacity: 0.3,
+        scrollbarOpacity: 0.8,
+        cursorColour: '#00979d',
+      },
+      fontStyle: {
+        family: 'JetBrains Mono, monospace',
+        weight: 'normal',
+        size: 12,
+      },
+    });
+
+    workspaceRef.current = Blockly.inject(containerRef.current, {
+      toolbox: arduinoToolbox,
+      theme: darkTheme,
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#2d3548',
+        snap: true,
+      },
+      zoom: {
+        controls: true,
+        wheel: true,
+        startScale: 1.0,
+        maxScale: 3,
+        minScale: 0.3,
+        scaleSpeed: 1.2,
+      },
+      trashcan: true,
+      move: {
+        scrollbars: true,
+        drag: true,
+        wheel: true,
+      },
+      sounds: false,
+    });
+
+    // Add default blocks if no initial XML
+    if (!initialXml) {
+      const defaultXml = `
+        <xml xmlns="https://developers.google.com/blockly/xml">
+          <block type="arduino_setup_loop" x="50" y="50">
+            <statement name="SETUP">
+              <block type="arduino_pin_mode">
+                <value name="PIN">
+                  <block type="arduino_led_builtin"></block>
+                </value>
+              </block>
+            </statement>
+            <statement name="LOOP">
+              <block type="arduino_digital_write">
+                <value name="PIN">
+                  <block type="arduino_led_builtin"></block>
+                </value>
+                <next>
+                  <block type="arduino_delay">
+                    <value name="TIME">
+                      <block type="math_number">
+                        <field name="NUM">1000</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="arduino_digital_write">
+                        <value name="PIN">
+                          <block type="arduino_led_builtin"></block>
+                        </value>
+                        <field name="VALUE">LOW</field>
+                        <next>
+                          <block type="arduino_delay">
+                            <value name="TIME">
+                              <block type="math_number">
+                                <field name="NUM">1000</field>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </xml>
+      `;
+      Blockly.Xml.domToWorkspace(
+        Blockly.utils.xml.textToDom(defaultXml),
+        workspaceRef.current
+      );
+    } else {
+      try {
+        Blockly.Xml.domToWorkspace(
+          Blockly.utils.xml.textToDom(initialXml),
+          workspaceRef.current
+        );
+      } catch (error) {
+        console.error('Error loading XML:', error);
+      }
+    }
+
+    // Generate initial code
+    setTimeout(generateCode, 100);
+
+    // Listen for workspace changes
+    workspaceRef.current.addChangeListener((event: Blockly.Events.Abstract) => {
+      if (
+        event.type === Blockly.Events.BLOCK_CHANGE ||
+        event.type === Blockly.Events.BLOCK_CREATE ||
+        event.type === Blockly.Events.BLOCK_DELETE ||
+        event.type === Blockly.Events.BLOCK_MOVE
+      ) {
+        generateCode();
+      }
+    });
+
+    // Handle resize
+    const resizeObserver = new ResizeObserver(() => {
+      if (workspaceRef.current) {
+        Blockly.svgResize(workspaceRef.current);
+      }
+    });
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+      if (workspaceRef.current) {
+        workspaceRef.current.dispose();
+      }
+    };
+  }, [generateCode, initialXml]);
+
+  return (
+    <div 
+      ref={containerRef} 
+      className="w-full h-full blockly-container"
+      style={{ minHeight: '400px' }}
+    />
+  );
+};
+
+export default BlocklyEditor;
+
+// Export function to get workspace XML
+export const getWorkspaceXml = (workspace: Blockly.WorkspaceSvg): string => {
+  const xml = Blockly.Xml.workspaceToDom(workspace);
+  return Blockly.Xml.domToText(xml);
+};
