@@ -21,11 +21,14 @@ interface CompileResponse {
   };
 }
 
-// Board FQBN mappings
+// Board FQBN mappings - ensure frontend FQBNs map correctly
 const BOARD_FQBN_MAP: Record<string, string> = {
   'arduino:avr:uno': 'arduino:avr:uno',
   'arduino:avr:nano': 'arduino:avr:nano:cpu=atmega328',
+  'arduino:avr:nano:cpu=atmega328': 'arduino:avr:nano:cpu=atmega328',
+  'arduino:avr:nano:cpu=atmega328old': 'arduino:avr:nano:cpu=atmega328old',
   'arduino:avr:mega': 'arduino:avr:mega:cpu=atmega2560',
+  'arduino:avr:mega:cpu=atmega2560': 'arduino:avr:mega:cpu=atmega2560',
 };
 
 Deno.serve(async (req) => {
