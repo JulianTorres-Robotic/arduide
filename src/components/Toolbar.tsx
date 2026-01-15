@@ -171,23 +171,55 @@ const Toolbar: React.FC<ToolbarProps> = ({
       return;
     }
 
-    if (!compiledHex) {
-      // If no HEX, run build first
+    let hexToUpload = compiledHex;
+
+    if (!hexToUpload) {
+      // If no HEX, run build first and get the result directly
       addConsoleMessage('info', 'No compiled code. Building first...');
-      await handleBuild();
-      
-      // Check if build succeeded and we have HEX now
-      if (!compiledHex) {
-        toast.error('Build required before upload');
-        addConsoleMessage('error', 'Cannot upload - build failed or no HEX generated.');
-        addConsoleMessage('info', 'Configure ARDUINO_COMPILER_URL secret to enable real compilation.');
+      addConsoleMessage('info', '━━━ Starting compilation ━━━');
+      addConsoleMessage('info', `Board: ${selectedBoard.name} (${selectedBoard.fqbn})`);
+      setIsUploading(true);
+      setUploadProgress(10);
+      setActiveTab('console');
+
+      try {
+        setUploadProgress(30);
+        const result = await compileArduinoCode(generatedCode, selectedBoard.fqbn);
+        setUploadProgress(90);
+        
+        if (result.success && result.hex) {
+          hexToUpload = result.hex;
+          setCompiledHex(result.hex);
+          addConsoleMessage('success', '✓ Compilation successful! HEX file ready.');
+          if (result.output) {
+            result.output.split('\n').forEach(line => {
+              if (line.trim()) addConsoleMessage('info', line);
+            });
+          }
+        } else {
+          setCompiledHex(null);
+          addConsoleMessage('error', '✗ Compilation failed');
+          if (result.error) addConsoleMessage('error', result.error);
+          if (result.output) {
+            result.output.split('\n').forEach(line => {
+              if (line.trim()) addConsoleMessage('warning', line);
+            });
+          }
+          toast.error('Build failed - check console for details');
+          setIsUploading(false);
+          return;
+        }
+      } catch (error) {
+        addConsoleMessage('error', `Build error: ${error}`);
+        toast.error('Build failed');
+        setIsUploading(false);
         return;
       }
     }
 
     addConsoleMessage('info', '━━━ Starting upload to board ━━━');
     addConsoleMessage('info', `Target: ${selectedBoard.name}`);
-    setIsUploading(true);
+    if (!isUploading) setIsUploading(true);
     setActiveTab('console');
 
     try {
@@ -200,7 +232,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       }
 
       // Parse HEX file
-      const hexData = parseHexFile(compiledHex);
+      const hexData = parseHexFile(hexToUpload);
       addConsoleMessage('info', `Firmware size: ${hexData.length} bytes`);
 
       // Upload using STK500 protocol
