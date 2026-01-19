@@ -1,8 +1,14 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -93,11 +99,23 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
+        xl: "2rem",
+        "2xl": "2.5rem",
+        full: "9999px",
       },
       fontFamily: {
+        sans: ["'Quicksand'", "'Nunito'", "'Segoe UI'", "sans-serif"],
         mono: ["'JetBrains Mono'", "'Fira Code'", "Consolas", "monospace"],
+      },
+      boxShadow: {
+        'clay-card': '8px 8px 16px rgba(165, 177, 194, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.8), inset 4px 4px 8px rgba(255, 255, 255, 0.5), inset -4px -4px 8px rgba(0, 0, 0, 0.05)',
+        'clay-btn': '6px 6px 12px rgba(165, 177, 194, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.4), inset -2px -2px 4px rgba(0, 0, 0, 0.1)',
+        'clay-btn-active': 'inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.2)',
+        'neu-pressed': 'inset 6px 6px 12px rgba(165, 177, 194, 0.25), inset -6px -6px 12px rgba(255, 255, 255, 0.8)',
+        'glow-sm': '0 0 10px hsl(var(--primary) / 0.3)',
+        'glow-md': '0 0 20px hsl(var(--primary) / 0.4)',
       },
       keyframes: {
         "accordion-down": {
@@ -108,17 +126,32 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 10px hsl(var(--arduino-teal) / 0.3)" },
-          "50%": { boxShadow: "0 0 20px hsl(var(--arduino-teal) / 0.5)" },
+        "bounce-slow": {
+          "0%, 100%": { transform: "translateY(-5%)" },
+          "50%": { transform: "translateY(0)" },
         },
+        "pulse-soft": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.8", transform: "scale(0.95)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        "wiggle": {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "bounce-slow": "bounce-slow 3s infinite ease-in-out",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+        "float": "float 4s ease-in-out infinite",
+        "wiggle": "wiggle 1s ease-in-out infinite",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

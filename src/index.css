@@ -2,250 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Arduino IDE Dark Theme Design System */
-
 @layer base {
   :root {
-    /* Arduino teal brand color */
-    --arduino-teal: 174 100% 30%;
-    --arduino-teal-light: 174 80% 45%;
-    --arduino-teal-dark: 174 100% 20%;
-    
-    /* Dark theme base */
-    --background: 220 20% 10%;
-    --foreground: 210 20% 90%;
-
-    --card: 220 18% 13%;
-    --card-foreground: 210 20% 90%;
-
-    --popover: 220 18% 15%;
-    --popover-foreground: 210 20% 90%;
-
-    --primary: 174 100% 30%;
+    --background: 210 100% 98%;
+    --foreground: 220 20% 35%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 35%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 35%;
+    --primary: 195 85% 55%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 210 20% 85%;
-
-    --muted: 220 15% 16%;
-    --muted-foreground: 215 15% 55%;
-
-    --accent: 174 80% 25%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 70% 50%;
+    --secondary: 330 85% 75%;
+    --secondary-foreground: 330 20% 20%;
+    --muted: 210 20% 90%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 45 20% 20%;
+    --destructive: 0 85% 65%;
     --destructive-foreground: 0 0% 100%;
-
-    --success: 142 70% 45%;
+    --success: 150 70% 50%;
     --success-foreground: 0 0% 100%;
+    --warning: 35 95% 60%;
+    --warning-foreground: 0 0% 100%;
+    --border: 210 30% 90%;
+    --input: 210 20% 92%;
+    --ring: 195 85% 55%;
+    --radius: 1.5rem;
+    
+    /* Variables Legacy Arduino Mapeadas */
+    --arduino-teal: 195 85% 55%;
+    --arduino-teal-light: 195 90% 65%;
+    --arduino-teal-dark: 195 100% 40%;
+    --panel-bg: 0 0% 100%;
+    --panel-header: 210 30% 96%;
+    --panel-border: 210 30% 90%;
+    
+    /* Syntax Highlighting Brillante */
+    --syntax-keyword: 260 70% 60%;
+    --syntax-string: 150 60% 40%;
+    --syntax-number: 30 90% 55%;
+    --syntax-comment: 210 10% 65%;
+    --syntax-function: 195 85% 45%;
+    --syntax-variable: 330 70% 55%;
+    --syntax-type: 45 90% 45%;
+    --syntax-operator: 220 20% 50%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 10%;
-
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 174 100% 30%;
-
-    --radius: 0.5rem;
-
-    /* Panel colors */
-    --panel-bg: 220 18% 12%;
-    --panel-header: 220 18% 14%;
-    --panel-border: 220 15% 18%;
-
-    /* Syntax highlighting */
-    --syntax-keyword: 280 80% 70%;
-    --syntax-string: 95 70% 55%;
-    --syntax-number: 30 90% 60%;
-    --syntax-comment: 215 15% 45%;
-    --syntax-function: 200 90% 65%;
-    --syntax-variable: 35 90% 70%;
-    --syntax-type: 174 80% 60%;
-    --syntax-operator: 0 0% 80%;
-
-    /* Status colors */
-    --status-connected: 142 70% 45%;
-    --status-disconnected: 0 70% 50%;
-    --status-connecting: 38 92% 50%;
+    /* Status */
+    --status-connected: 150 70% 50%;
+    --status-disconnected: 0 85% 65%;
+    --status-connecting: 45 100% 60%;
 
     /* Sidebar */
-    --sidebar-background: 220 18% 11%;
-    --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 174 100% 30%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 40%;
+    --sidebar-primary: 195 85% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 174 100% 30%;
+    --sidebar-accent: 210 50% 96%;
+    --sidebar-accent-foreground: 195 85% 45%;
+    --sidebar-border: 210 30% 90%;
+    --sidebar-ring: 195 85% 55%;
   }
 
   .dark {
-    /* Already dark by default */
+     /* Igual al claro para mantener estilo infantil */
+     /* Opcional: ajustar si deseas modo oscuro real */
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Quicksand', 'Nunito', sans-serif;
+    background-image: radial-gradient(hsl(210 30% 90%) 2px, transparent 2px);
+    background-size: 32px 32px;
   }
-
-  /* Custom scrollbar for dark theme */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--panel-bg));
-  }
-
+  
+  /* Scrollbars Gominola */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: transparent; margin: 4px; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 4px;
+    background: hsl(210 20% 85%);
+    border-radius: 99px;
+    border: 3px solid hsl(var(--background));
   }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground));
-  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.6); }
 }
 
 @layer components {
-  /* IDE Panel styling */
   .ide-panel {
-    @apply bg-[hsl(var(--panel-bg))] border border-[hsl(var(--panel-border))] rounded-lg overflow-hidden;
+    @apply bg-card rounded-2xl overflow-hidden transition-all duration-300;
+    box-shadow: 8px 8px 16px rgba(165, 177, 194, 0.2), -8px -8px 16px rgba(255, 255, 255, 0.8), inset 2px 2px 4px rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
   }
-
   .ide-panel-header {
-    @apply bg-[hsl(var(--panel-header))] px-3 py-2 flex items-center gap-2 border-b border-[hsl(var(--panel-border))];
+    @apply bg-[hsl(var(--panel-header))] px-4 py-3 flex items-center gap-3 border-b border-[hsl(var(--panel-border))];
+    font-weight: 700;
   }
-
-  /* Toolbar button */
   .toolbar-btn {
-    @apply flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200;
-    @apply bg-secondary text-secondary-foreground;
-    @apply hover:bg-primary hover:text-primary-foreground;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 bg-white text-[hsl(var(--foreground))];
+    box-shadow: 4px 4px 8px rgba(165, 177, 194, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9);
   }
-
-  .toolbar-btn-primary {
-    @apply toolbar-btn bg-primary text-primary-foreground;
-    @apply hover:bg-[hsl(var(--arduino-teal-light))];
-  }
-
-  /* Status indicator */
-  .status-dot {
-    @apply w-2 h-2 rounded-full animate-pulse;
-  }
-
-  .status-connected {
-    @apply bg-[hsl(var(--status-connected))];
-  }
-
-  .status-disconnected {
-    @apply bg-[hsl(var(--status-disconnected))];
-  }
-
-  .status-connecting {
-    @apply bg-[hsl(var(--status-connecting))];
-  }
-
-  /* Code block styling */
+  .toolbar-btn:hover { @apply -translate-y-0.5 shadow-lg; }
+  .toolbar-btn:active { @apply translate-y-0 shadow-inner; }
+  
   .code-block {
-    @apply font-mono text-sm leading-relaxed;
-    background: hsl(var(--panel-bg));
+    @apply font-mono text-sm leading-relaxed rounded-xl p-4;
+    background: hsl(210 20% 97%);
+    box-shadow: inset 4px 4px 8px rgba(165, 177, 194, 0.2), inset -4px -4px 8px rgba(255, 255, 255, 1);
+    border: 1px solid rgba(255,255,255,0.5);
   }
-
-  /* Blockly container */
-  .blockly-container {
-    @apply w-full h-full rounded-lg overflow-hidden;
-  }
-
-  /* Tab styling */
-  .ide-tab {
-    @apply px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 border-transparent;
-    @apply text-muted-foreground hover:text-foreground;
-  }
-
-  .ide-tab-active {
-    @apply text-primary border-primary;
-  }
-
-  /* Console output */
-  .console-line {
-    @apply font-mono text-xs leading-relaxed py-0.5;
-  }
-
-  .console-error {
-    @apply text-[hsl(var(--destructive))];
-  }
-
-  .console-warning {
-    @apply text-[hsl(var(--warning))];
-  }
-
-  .console-success {
-    @apply text-[hsl(var(--success))];
-  }
-
-  .console-info {
-    @apply text-muted-foreground;
-  }
-}
-
-@layer utilities {
-  /* Glow effects */
-  .glow-teal {
-    box-shadow: 0 0 20px hsl(var(--arduino-teal) / 0.3);
-  }
-
-  .glow-teal-sm {
-    box-shadow: 0 0 10px hsl(var(--arduino-teal) / 0.2);
-  }
-
-  /* Animation utilities */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Prism.js overrides for Arduino C++ */
-  .token.comment { color: hsl(var(--syntax-comment)); }
-  .token.string { color: hsl(var(--syntax-string)); }
-  .token.number { color: hsl(var(--syntax-number)); }
-  .token.keyword { color: hsl(var(--syntax-keyword)); }
-  .token.function { color: hsl(var(--syntax-function)); }
-  .token.operator { color: hsl(var(--syntax-operator)); }
-  .token.class-name { color: hsl(var(--syntax-type)); }
-  .token.variable { color: hsl(var(--syntax-variable)); }
-  .token.builtin { color: hsl(var(--syntax-type)); }
 }
