@@ -253,8 +253,8 @@ const SerialMonitor: React.FC = () => {
               </motion.div>
               <p className="text-muted-foreground font-medium font-sans">
                 {isMonitorConnected 
-                  ? '⏳ Esperando datos...' 
-                  : '🔌 Conecta para ver la salida serie'}
+                  ? 'Esperando datos...' 
+                  : 'Conecta para ver la salida serie'}
               </p>
             </div>
           ) : (
@@ -290,7 +290,7 @@ const SerialMonitor: React.FC = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="Escribe un mensaje... 💬"
+          placeholder="Escribe un mensaje..."
           disabled={!isMonitorConnected}
           className="neu-input flex-1 h-10 text-sm"
         />

@@ -332,7 +332,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </DialogTrigger>
             <DialogContent className="ide-panel border-none">
               <DialogHeader>
-                <DialogTitle className="text-xl font-black text-primary">✨ Nuevo Proyecto</DialogTitle>
+                <DialogTitle className="text-xl font-black text-primary">Nuevo Proyecto</DialogTitle>
                 <DialogDescription>
                   Crea un nuevo proyecto Arduino. Tu trabajo se guardará automáticamente.
                 </DialogDescription>
@@ -343,7 +343,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                   id="projectName"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  placeholder="Mi Proyecto Arduino 🤖"
+                  placeholder="Mi Proyecto Arduino"
                   className="neu-input mt-2"
                   onKeyDown={(e) => e.key === 'Enter' && handleNewProject()}
                 />
@@ -353,7 +353,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                   Cancelar
                 </Button>
                 <Button onClick={handleNewProject} className="clay-btn clay-btn-primary">
-                  Crear 🚀
+                  Crear
                 </Button>
               </DialogFooter>
             </DialogContent>

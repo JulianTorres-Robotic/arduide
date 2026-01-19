@@ -168,16 +168,6 @@ const IDEContent: React.FC = () => {
               
               <BlocklyEditor initialXml={currentProject?.blocklyXml} />
               
-              {/* Label flotante */}
-              <motion.div 
-                className="floating-label bottom-4 right-4 text-primary flex items-center gap-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Editor de Bloques
-              </motion.div>
             </div>
           </ResizablePanel>
 

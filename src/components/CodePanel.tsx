@@ -31,7 +31,7 @@ const CodePanel: React.FC = () => {
           onChange={handleChange}
           className="w-full h-full min-h-[500px] bg-transparent p-5 resize-none focus:outline-none font-mono text-sm leading-7 text-foreground placeholder:text-muted-foreground"
           spellCheck={false}
-          placeholder="// ¡Escribe tu código Arduino aquí! 🚀"
+          placeholder="// ¡Escribe tu código Arduino aquí!"
           style={{ 
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             caretColor: 'hsl(var(--primary))'
@@ -41,7 +41,7 @@ const CodePanel: React.FC = () => {
       
       {/* Footer hint */}
       <div className="px-4 py-2.5 bg-muted/20 border-t border-border text-[11px] text-muted-foreground font-semibold">
-        💡 Tip: Los bloques generan código automáticamente
+        Tip: Los bloques generan código automáticamente
       </div>
     </div>
   );

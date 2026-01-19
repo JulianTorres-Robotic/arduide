@@ -73,7 +73,7 @@ const ConsolePanel: React.FC = () => {
                 <Terminal className="w-8 h-8 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground text-sm font-medium">
-                La salida aparecerá aquí... 🖥️
+                La salida aparecerá aquí
               </p>
             </div>
           ) : (
