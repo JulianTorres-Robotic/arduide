@@ -380,18 +380,6 @@
     border: 2px solid hsl(var(--neu-shadow-light) / 0.6);
   }
   
-  /* === RAINBOW BAR === */
-  .rainbow-bar {
-    height: 4px;
-    background: var(--gradient-rainbow);
-    background-size: 200% 100%;
-    animation: rainbow-shift 3s linear infinite;
-  }
-  
-  @keyframes rainbow-shift {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
-  }
   
   /* === TOOLBAR ISLAND === */
   .toolbar-island {

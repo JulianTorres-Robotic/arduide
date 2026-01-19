@@ -137,9 +137,6 @@ const IDEContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen w-full bg-background p-3 md:p-5 box-border overflow-hidden font-sans">
       
-      {/* Barra Rainbow decorativa */}
-      <div className="rainbow-bar rounded-full mx-4 mb-3" />
-      
       {/* TOOLBAR */}
       <div className="w-full relative z-20 mb-4">
         <Toolbar 
@@ -163,8 +160,6 @@ const IDEContent: React.FC = () => {
           {/* === PANEL BLOCKLY === */}
           <ResizablePanel defaultSize={60} minSize={35} className="p-3">
             <div className="h-full w-full ide-panel overflow-hidden relative group">
-              {/* Barra de color superior */}
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent z-10 opacity-80" />
               
               <BlocklyEditor initialXml={currentProject?.blocklyXml} />
               
