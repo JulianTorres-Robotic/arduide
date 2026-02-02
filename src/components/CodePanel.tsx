@@ -39,7 +39,7 @@ const CodePanel: React.FC = () => {
         />
       </ScrollArea>
       
-      {/* Footer hint */}
+      {/* Footer aqui les ponemos un Tip para que el usuario tenga mejor comprension */}
       <div className="px-4 py-2.5 bg-muted/20 border-t border-border text-[11px] text-muted-foreground font-semibold">
         Tip: Los bloques generan código automáticamente
       </div>

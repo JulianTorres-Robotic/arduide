@@ -34,10 +34,10 @@ const BlocklyEditor: React.FC<BlocklyEditorProps> = ({ onCodeChange, initialXml 
     // Define Arduino blocks
     defineArduinoBlocks();
     
-    // Create generator
+    // Crea el Generador
     generatorRef.current = createArduinoGenerator();
 
-    // Create workspace with kid-friendly light theme
+    // Crea un workspace
     const kidsTheme = Blockly.Theme.defineTheme('arduino-kids', {
       name: 'arduino-kids',
       base: Blockly.Themes.Classic,
@@ -87,7 +87,7 @@ const BlocklyEditor: React.FC<BlocklyEditorProps> = ({ onCodeChange, initialXml 
       sounds: false,
     });
 
-    // Add default blocks if no initial XML
+    // Agrega los bloques default del proyecto si no hace un upload
     if (!initialXml) {
       const defaultXml = `
         <xml xmlns="https://developers.google.com/blockly/xml">
@@ -150,10 +150,10 @@ const BlocklyEditor: React.FC<BlocklyEditorProps> = ({ onCodeChange, initialXml 
       }
     }
 
-    // Generate initial code
+    // Genera el codigo inicial, puede ser el de testeo o a su vez si lo hacemos con un upload
     setTimeout(generateCode, 100);
 
-    // Listen for workspace changes
+    // Es cucha si hay cambios en el workspace
     workspaceRef.current.addChangeListener((event: Blockly.Events.Abstract) => {
       if (
         event.type === Blockly.Events.BLOCK_CHANGE ||
@@ -192,7 +192,7 @@ const BlocklyEditor: React.FC<BlocklyEditorProps> = ({ onCodeChange, initialXml 
 
 export default BlocklyEditor;
 
-// Export function to get workspace XML
+// Exporta funcion para obtener el workspace XML
 export const getWorkspaceXml = (workspace: Blockly.WorkspaceSvg): string => {
   const xml = Blockly.Xml.workspaceToDom(workspace);
   return Blockly.Xml.domToText(xml);

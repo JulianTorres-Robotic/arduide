@@ -93,15 +93,11 @@ const Toolbar: React.FC<ToolbarProps> = ({
     loadProjects();
   }, [loadProjects]);
 
-  // --- CORRECCIÓN CRÍTICA ---
-  // Este efecto borra la compilación guardada cada vez que cambias una letra en el código.
-  // Esto obliga al botón Upload a recompilar con tus cambios nuevos.
   React.useEffect(() => {
     if (compiledHex) {
       setCompiledHex(null);
     }
   }, [generatedCode]);
-  // ---------------------------
 
   const handleConnect = async () => {
     if (!isWebSerialSupported()) {
@@ -321,7 +317,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   return (
     <>
       <div className="toolbar-island flex-wrap gap-2">
-        {/* Left Section */}
+        {/* Seccion Izq */}
         <div className="flex items-center gap-2 flex-wrap">
           <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
             <DialogTrigger asChild>
@@ -412,10 +408,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
           </button>
         </div>
 
-        {/* Separator */}
+        {/* Separador "|" */}
         <div className="h-8 w-px bg-border hidden md:block" />
 
-        {/* Right Section */}
+        {/* Seccion Der */}
         <div className="flex items-center gap-2 flex-wrap ml-auto">
           {!authLoading && !isAuthenticated && (
             <button 
@@ -483,7 +479,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="px-4 py-2 bg-secondary/50 border-b border-border">
+            <div>
               <div className="flex items-center gap-3">
                 <Progress value={uploadProgress} className="flex-1 h-2" />
                 <span className="text-sm text-muted-foreground w-12">

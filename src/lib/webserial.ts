@@ -34,7 +34,7 @@ export interface ArduinoBoard {
   baudRate: number;
 }
 
-// Configuración unificada - Auto-detect habilitado
+// Configuración unificada
 export const ARDUINO_BOARDS: ArduinoBoard[] = [
   { name: 'Arduino Uno', fqbn: 'arduino:avr:uno', uploadProtocol: 'stk500v1', baudRate: 115200 },
   { name: 'Arduino Nano', fqbn: 'arduino:avr:nano', uploadProtocol: 'stk500v1', baudRate: 115200 },
@@ -86,7 +86,7 @@ export type UploadProgressCallback = (progress: UploadProgress) => void;
 export type DebugLogCallback = (message: string) => void;
 
 export const parseHexFile = (hexContent: string): Uint8Array => {
-  const lines = hexContent.split('\n').filter(line => line.startsWith(':'));
+  const lines = hexContent.split('\n').filter(line => line.trim().startsWith(':'));
   const data: number[] = [];
   for (const line of lines) {
     const byteCount = parseInt(line.substring(1, 3), 16);
@@ -100,7 +100,7 @@ export const parseHexFile = (hexContent: string): Uint8Array => {
   return new Uint8Array(data);
 };
 
-// Robust read function that collects data with timeout
+// --- LECTURA ROBUSTA ---
 const readWithTimeout = async (
   reader: ReadableStreamDefaultReader<Uint8Array>,
   timeoutMs: number,
@@ -109,162 +109,85 @@ const readWithTimeout = async (
   const buffer: number[] = [];
   const startTime = Date.now();
   
-  const abortController = new AbortController();
-  const timeoutId = setTimeout(() => abortController.abort(), timeoutMs);
-  
-  try {
-    while (Date.now() - startTime < timeoutMs) {
-      const remainingTime = timeoutMs - (Date.now() - startTime);
-      if (remainingTime <= 0) break;
-      
-      const readResult = await Promise.race([
-        reader.read(),
-        new Promise<{ value: undefined; done: true }>((resolve) => 
-          setTimeout(() => resolve({ value: undefined, done: true }), Math.min(remainingTime, 100))
-        )
-      ]);
-      
-      if (readResult.value && readResult.value.length > 0) {
-        buffer.push(...readResult.value);
-        // Descomentar para debug extremo:
-        // const hex = Array.from(readResult.value).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' ');
-        // if (onDebug) onDebug(`[RX] ${hex}`);
-        
-        if (buffer.includes(STK_INSYNC) && buffer.includes(STK_OK)) {
-          break;
-        }
+  while (Date.now() - startTime < timeoutMs) {
+    const readPromise = reader.read();
+    // Timeout pequeño interno para polling rápido
+    const timeoutPromise = new Promise<{ value: undefined; done: boolean }>((resolve) =>
+      setTimeout(() => resolve({ value: undefined, done: false }), 20)
+    );
+
+    const { value, done } = await Promise.race([readPromise, timeoutPromise]);
+
+    if (value) {
+      buffer.push(...value);
+      if (onDebug) {
+        const hex = Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        onDebug(`[RX] ${hex}`);
       }
-      
-      if (readResult.done) break;
+      // Si encontramos OK e INSYNC, salimos temprano para acelerar
+      if (buffer.includes(STK_INSYNC) && buffer.includes(STK_OK)) break;
     }
-  } catch (e) {
-    // Ignore timeout
-  } finally {
-    clearTimeout(timeoutId);
+    if (done) break;
   }
-  
   return new Uint8Array(buffer);
 };
 
-// --- ESTRATEGIA DE RESET MEJORADA ---
+// --- LÓGICA DE RESET AUTOMÁTICO ---
 
-const resetBoardDTR = async (port: SerialPort, onDebug?: DebugLogCallback): Promise<void> => {
-  if(onDebug) onDebug('Reset DTR...');
-  await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-  await new Promise(r => setTimeout(r, 50));
-  await port.setSignals({ dataTerminalReady: true, requestToSend: false });
-  await new Promise(r => setTimeout(r, 250)); // Pulso más largo
-  await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-};
-
-const resetBoardRTS = async (port: SerialPort, onDebug?: DebugLogCallback): Promise<void> => {
-  if(onDebug) onDebug('Reset RTS...');
-  await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-  await new Promise(r => setTimeout(r, 50));
-  await port.setSignals({ dataTerminalReady: false, requestToSend: true });
-  await new Promise(r => setTimeout(r, 250)); // Pulso más largo
-  await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-};
-
-const resetBoardCombined = async (port: SerialPort, onDebug?: DebugLogCallback): Promise<void> => {
-  const log = (msg: string) => { console.log(`[WebSerial] ${msg}`); if (onDebug) onDebug(msg); };
-  log('Ejecutando Reset Automático (DTR+RTS)...');
+const toggleReset = async (port: SerialPort, onDebug?: DebugLogCallback): Promise<void> => {
+  if (onDebug) onDebug('Ejecutando secuencia Auto-Reset...');
   
-  // 1. Apagar señales
+  // 1. Asegurar estado inicial "HIGH" (false logicamente en WebSerial API suele ser +V/Desactivado)
   await port.setSignals({ dataTerminalReady: false, requestToSend: false });
   await new Promise(r => setTimeout(r, 50));
-  
-  // 2. Pulso de RESET robusto (250ms)
+
+  // 2. Activar RESET (DTR True = Señal activa/Baja = Reset presionado)
   await port.setSignals({ dataTerminalReady: true, requestToSend: true });
-  await new Promise(r => setTimeout(r, 250));
-  
-  // 3. Soltar RESET
+  await new Promise(r => setTimeout(r, 250)); // Ancho del pulso de reset
+
+  // 3. Soltar RESET (DTR False = Señal alta = Arrancar)
   await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-  
-  // 4. Espera mínima técnica (100ms) - NO esperamos 300ms, empezamos a buscar YA
-  await new Promise(r => setTimeout(r, 100));
+
+  // 4. TIEMPO DE ARRANQUE DEL BOOTLOADER (CRÍTICO)
+  // 250ms suele ser el punto dulce para Uno/Nano. Si es muy corto, falla.
+  await new Promise(r => setTimeout(r, 250)); 
 };
 
-type ResetMethod = 'dtr' | 'rts' | 'combined';
+// --- SINCRONIZACIÓN ---
 
-const attemptSync = async (
-  port: SerialPort,
-  baudRate: number,
-  resetMethod: ResetMethod,
-  onProgress: UploadProgressCallback,
+const syncWithBootloader = async (
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  writer: WritableStreamDefaultWriter<Uint8Array>,
   onDebug?: DebugLogCallback
-): Promise<{ success: boolean; reader: ReadableStreamDefaultReader<Uint8Array> | null; writer: WritableStreamDefaultWriter<Uint8Array> | null }> => {
-  const log = (msg: string) => { console.log(`[WebSerial] ${msg}`); if (onDebug) onDebug(msg); };
-
-  log(`━━━ Intento ${baudRate} baud (${resetMethod}) ━━━`);
+): Promise<boolean> => {
+  const log = (m: string) => { if(onDebug) onDebug(m); };
   
-  try {
-    await port.open({ baudRate });
-  } catch (e) {
-    log(`Puerto ocupado o error: ${e}`);
-    return { success: false, reader: null, writer: null };
-  }
-
-  const writer = port.writable?.getWriter();
-  const reader = port.readable?.getReader();
-
-  if (!writer || !reader) {
-    try { await port.close(); } catch {}
-    return { success: false, reader: null, writer: null };
-  }
-
-  // Ejecutar Reset
-  switch (resetMethod) {
-    case 'dtr': await resetBoardDTR(port, onDebug); break;
-    case 'rts': await resetBoardRTS(port, onDebug); break;
-    case 'combined': await resetBoardCombined(port, onDebug); break;
-  }
-
-  // Limpiar basura inicial
-  try { await readWithTimeout(reader, 50, onDebug); } catch {}
-
-  onProgress({ stage: 'syncing', progress: 10, message: 'Buscando bootloader...' });
+  // Intentamos enviar pings rápidos
+  const maxAttempts = 30;
   
-  let synced = false;
-  // BUCLE AGRESIVO: 40 intentos rápidos (aprox 4 segundos total)
-  // Si el auto-reset funciona, entra en el intento 1 o 2.
-  // Si no, tienes 4 seg para darle al botón manual.
-  const maxAttempts = 40; 
-  
-  for (let attempt = 0; attempt < maxAttempts && !synced; attempt++) {
+  for (let i = 0; i < maxAttempts; i++) {
+    // Comando STK_GET_SYNC
+    const cmd = new Uint8Array([STK_GET_SYNC, CRC_EOP]);
     try {
-      if (attempt % 5 === 0) log(`Ping... (${attempt + 1}/${maxAttempts})`);
+      await writer.write(cmd);
       
-      const syncCmd = new Uint8Array([STK_GET_SYNC, CRC_EOP]);
-      await writer.write(syncCmd);
+      // Esperamos respuesta muy corta (50ms). Si el bootloader está vivo, responde inmediato.
+      const res = await readWithTimeout(reader, 50, onDebug);
       
-      // Timeout CORTO (80ms) para iterar rápido
-      const response = await readWithTimeout(reader, 80, onDebug);
-      
-      if (response.length > 0) {
-        if (response.includes(STK_INSYNC) && response.includes(STK_OK)) {
-          log('✓ ¡CONECTADO!');
-          synced = true;
-          break;
-        }
+      if (res.includes(STK_INSYNC) && res.includes(STK_OK)) {
+        log('✓ Bootloader detectado y sincronizado.');
+        return true;
       }
-      // Pequeña pausa entre intentos
-      await new Promise(r => setTimeout(r, 50));
     } catch (e) {
-      // ignorar errores de escritura en bucle
+      log(`Error escritura sync: ${e}`);
     }
+    // Pequeña pausa entre intentos
+    await new Promise(r => setTimeout(r, 20));
   }
-
-  if (synced) {
-    return { success: true, reader, writer };
-  }
-
-  try { await reader.cancel(); reader.releaseLock(); } catch {}
-  try { await writer.close(); writer.releaseLock(); } catch {}
-  try { await port.close(); } catch {}
-  
-  return { success: false, reader: null, writer: null };
+  return false;
 };
+
+// --- FUNCIÓN PRINCIPAL DE UPLOAD ---
 
 export const uploadToArduino = async (
   port: SerialPort,
@@ -275,91 +198,105 @@ export const uploadToArduino = async (
 ): Promise<void> => {
   const log = (msg: string) => { console.log(`[WebSerial] ${msg}`); if (onDebug) onDebug(msg); };
 
-  log(`Iniciando upload para ${board.name} (${hexData.length} bytes)`);
-
-  let activeReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-  let activeWriter: WritableStreamDefaultWriter<Uint8Array> | null = null;
-
-  const isOldBootloader = board.fqbn.includes('atmega328old');
-  const baudRates = isOldBootloader ? [57600] : board.name.includes('Nano') ? [115200, 57600] : [board.baudRate];
-  
-  // Prioridad a 'combined' que es el más común
-  const resetMethods: ResetMethod[] = ['combined', 'dtr'];
-
-  let connected = false;
-  
-  outerLoop:
-  for (const baud of baudRates) {
-    for (const method of resetMethods) {
-      const result = await attemptSync(port, baud, method, onProgress, onDebug);
-      
-      if (result.success && result.reader && result.writer) {
-        activeReader = result.reader;
-        activeWriter = result.writer;
-        connected = true;
-        log(`✓ Conexión establecida a ${baud} baud`);
-        break outerLoop;
-      }
-      // Espera antes de probar otra config
-      await new Promise(r => setTimeout(r, 200));
+  // 1. ABRIR PUERTO
+  try {
+    log(`Abriendo puerto a ${board.baudRate}...`);
+    await port.open({ baudRate: board.baudRate });
+  } catch (e) {
+    // Si ya está abierto, intentamos continuar, si es otro error, fallamos
+    if (!(e instanceof DOMException && e.name === 'InvalidStateError')) {
+      throw new Error(`Error abriendo puerto: ${e}`);
     }
   }
 
-  if (!connected || !activeReader || !activeWriter) {
-    log('✗ Fallo. Si el auto-reset no funciona, prueba pulsar RESET manualmente durante el mensaje "Buscando bootloader..."');
-    throw new Error('No se pudo conectar. Intenta reconectar el USB o usar Reset Manual.');
+  const writer = port.writable?.getWriter();
+  const reader = port.readable?.getReader();
+
+  if (!writer || !reader) {
+    throw new Error('No se pudo obtener writer/reader del puerto.');
   }
 
   try {
-    log('Modo programación...');
-    await activeWriter.write(new Uint8Array([STK_ENTER_PROGMODE, CRC_EOP]));
-    await readWithTimeout(activeReader, 200, onDebug);
-    
+    onProgress({ stage: 'syncing', progress: 0, message: 'Iniciando Auto-Reset...' });
+
+    // 2. RESETEAR
+    await toggleReset(port, onDebug);
+
+    // 3. SINCRONIZAR
+    onProgress({ stage: 'syncing', progress: 10, message: 'Sincronizando...' });
+    const isSynced = await syncWithBootloader(reader, writer, onDebug);
+
+    if (!isSynced) {
+      throw new Error('Fallo de sincronización. No se detectó el bootloader tras el Auto-Reset.');
+    }
+
+    // 4. INICIAR PROGRAMACIÓN
+    log('Entrando en modo programación...');
+    await writer.write(new Uint8Array([STK_ENTER_PROGMODE, CRC_EOP]));
+    await readWithTimeout(reader, 200, onDebug);
+
     onProgress({ stage: 'uploading', progress: 20, message: 'Subiendo...' });
 
-    const pageSize = 128;
+    const pageSize = 128; // Tamaño típico página ATmega328p
     const totalPages = Math.ceil(hexData.length / pageSize);
 
     for (let page = 0; page < totalPages; page++) {
       const addr = page * pageSize;
       const pageData = hexData.slice(addr, addr + pageSize);
+      
+      // Preparar buffer de página
       const paddedData = new Uint8Array(pageSize);
-      paddedData.fill(0xFF);
+      paddedData.fill(0xFF); // Rellenar espacio vacío
       paddedData.set(pageData);
 
-      const wordAddr = addr >> 1;
+      // Cargar Dirección
+      const wordAddr = addr >> 1; // STK500 usa direcciones de palabras (bytes / 2)
       const addrCmd = new Uint8Array([STK_LOAD_ADDRESS, wordAddr & 0xFF, (wordAddr >> 8) & 0xFF, CRC_EOP]);
-      
-      await activeWriter.write(addrCmd);
-      await readWithTimeout(activeReader, 100);
+      await writer.write(addrCmd);
+      await readWithTimeout(reader, 50);
 
-      const progCmd = new Uint8Array([STK_PROG_PAGE, (paddedData.length >> 8) & 0xFF, paddedData.length & 0xFF, 0x46]);
-      const fullPacket = new Uint8Array(progCmd.length + paddedData.length + 1);
-      fullPacket.set(progCmd, 0);
-      fullPacket.set(paddedData, progCmd.length);
-      fullPacket[fullPacket.length - 1] = CRC_EOP;
+      // Escribir Página
+      const progCmd = new Uint8Array([STK_PROG_PAGE, 0x00, pageSize, 0x46]); // 0x46 = 'F' flash
+      const packet = new Uint8Array(progCmd.length + pageSize + 1);
+      packet.set(progCmd, 0);
+      packet.set(paddedData, progCmd.length);
+      packet[packet.length - 1] = CRC_EOP;
 
-      await activeWriter.write(fullPacket);
-      await readWithTimeout(activeReader, 500);
+      await writer.write(packet);
+      // Timeout calculado: escribir flash toma tiempo (~3-4ms por página real, damos 300ms seguridad)
+      await readWithTimeout(reader, 300);
 
-      const progress = 20 + ((page + 1) / totalPages) * 70;
-      onProgress({
-        stage: 'uploading',
-        progress,
-        message: `Subiendo... ${Math.round(((page + 1) / totalPages) * 100)}%`,
+      const percent = Math.round(((page + 1) / totalPages) * 100);
+      onProgress({ 
+        stage: 'uploading', 
+        progress: 20 + (percent * 0.7), 
+        message: `Subiendo ${percent}%` 
       });
     }
 
+    // 5. FINALIZAR
     onProgress({ stage: 'verifying', progress: 95, message: 'Finalizando...' });
-    await activeWriter.write(new Uint8Array([STK_LEAVE_PROGMODE, CRC_EOP]));
-    await readWithTimeout(activeReader, 200);
+    await writer.write(new Uint8Array([STK_LEAVE_PROGMODE, CRC_EOP]));
+    await readWithTimeout(reader, 200);
 
     onProgress({ stage: 'done', progress: 100, message: '¡Subida exitosa!' });
     log('✓ FIN.');
 
+  } catch (e) {
+    log(`Error fatal: ${e}`);
+    onProgress({ stage: 'error', progress: 0, message: (e as Error).message });
+    throw e;
   } finally {
-    if (activeReader) { try { await activeReader.cancel(); activeReader.releaseLock(); } catch {} }
-    if (activeWriter) { try { await activeWriter.close(); activeWriter.releaseLock(); } catch {} }
+    // 6. LIMPIEZA
+    // Es vital liberar los locks y cerrar para poder reintentar luego sin recargar la página
+    if (reader) {
+        try { await reader.cancel(); } catch {}
+        reader.releaseLock();
+    }
+    if (writer) {
+        try { await writer.close(); } catch {}
+        writer.releaseLock();
+    }
     try { await port.close(); } catch {}
   }
 };

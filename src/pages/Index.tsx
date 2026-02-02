@@ -135,7 +135,7 @@ const IDEContent: React.FC = () => {
   }, [currentProject, handleSave]);
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background p-3 md:p-5 box-border overflow-hidden font-sans">
+    <div className="h-screen w-screen overflow-hidden bg-slate-100 flex flex-col">
       
       {/* TOOLBAR */}
       <div className="w-full relative z-20 mb-4">
