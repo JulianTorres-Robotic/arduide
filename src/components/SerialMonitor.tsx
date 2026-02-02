@@ -191,7 +191,7 @@ const SerialMonitor: React.FC = () => {
             </SelectContent>
           </Select>
           
-          {/* Connect/Disconnect Button */}
+          {/* Boton de Conectar/Desconectar */}
           {isMonitorConnected ? (
             <button
               onClick={handleDisconnect}
@@ -210,7 +210,7 @@ const SerialMonitor: React.FC = () => {
             </button>
           )}
           
-          {/* Auto-scroll toggle */}
+          {/* Auto-scroll */}
           <Button
             variant="ghost"
             size="sm"
@@ -223,7 +223,7 @@ const SerialMonitor: React.FC = () => {
             <ArrowDown className="w-4 h-4" />
           </Button>
           
-          {/* Clear button */}
+          {/* Boton para limpiar */}
           <Button
             variant="ghost"
             size="sm"
@@ -235,7 +235,7 @@ const SerialMonitor: React.FC = () => {
         </div>
       </div>
       
-      {/* Messages Area */}
+      {/* Area de Mensaje */}
       <ScrollArea className="flex-1 bg-muted/10" ref={scrollRef}>
         <div className="p-4 font-mono text-sm space-y-1.5">
           {serialMessages.length === 0 ? (

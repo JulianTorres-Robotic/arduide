@@ -2,6 +2,8 @@ import * as React from "react";
 
 const MOBILE_BREAKPOINT = 768;
 
+//aqui vamos a intentar hacer las vistas para mobil
+
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 

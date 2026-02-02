@@ -8,13 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ConsolePanel: React.FC = () => {
   const { consoleMessages, clearConsole } = useIDE();
   const scrollRef = useRef<HTMLDivElement>(null);
-
+  //Se comenta este bloque para evitar el scroll automatico al agregar mensajes nuevos
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [consoleMessages]);
-
+  
   const getIcon = (type: string) => {
     switch (type) {
       case 'error':
@@ -64,7 +64,7 @@ const ConsolePanel: React.FC = () => {
         </Button>
       </div>
       
-      {/* Messages */}
+      {/* Mensajes */}
       <ScrollArea className="flex-1" ref={scrollRef}>
         <div className="p-4 space-y-2">
           {consoleMessages.length === 0 ? (
@@ -78,10 +78,10 @@ const ConsolePanel: React.FC = () => {
             </div>
           ) : (
             <AnimatePresence>
-              {consoleMessages.map((msg, index) => (
+              {consoleMessages.map((msg) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}

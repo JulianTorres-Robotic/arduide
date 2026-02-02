@@ -11,7 +11,6 @@ import {
 } from '@/lib/storage';
 import { ArduinoBoard, ARDUINO_BOARDS } from '@/lib/webserial';
 
-// Definiciones de tipos para mensajes
 export interface ConsoleMessage {
   id: string;
   type: 'info' | 'warning' | 'error' | 'success';
@@ -85,25 +84,25 @@ interface IDEProviderProps {
 }
 
 export const IDEProvider: React.FC<IDEProviderProps> = ({ children }) => {
-  // --- ESTADOS ---
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [versions, setVersions] = useState<ProjectVersion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // CÓDIGO POR DEFECTO: Pin 13 (LED integrado) para verificar funcionalidad
-  const [generatedCode, setGeneratedCode] = useState(`void setup() {
-  pinMode(13, OUTPUT);
-}
+  // este es el codigo por defecto, usamos el pin 13 que viene integrado a la placa para probar su funcionalidad
+  const [generatedCode, setGeneratedCode] = useState(`
+    void setup() {
+      pinMode(13, OUTPUT);
+    }
 
-void loop() {
-  digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
-  delay(1000);
-}`);
+    void loop() {
+      digitalWrite(13, HIGH);
+      delay(1000);
+      digitalWrite(13, LOW);
+      delay(1000);
+    }`);
 
-  const [selectedBoard, setSelectedBoard] = useState<ArduinoBoard>(ARDUINO_BOARDS[1]); // Nano Default
+  const [selectedBoard, setSelectedBoard] = useState<ArduinoBoard>(ARDUINO_BOARDS[1]); // Nano Default, aqui podemos cambiar el default a usar
   const [isConnected, setIsConnected] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -113,14 +112,17 @@ void loop() {
   const [serialBaudRate, setSerialBaudRate] = useState(9600);
   const [activeTab, setActiveTab] = useState<'code' | 'console' | 'serial'>('code');
 
-  // --- FUNCIONES DE CONSOLA/SERIAL ---
+  // --- FUNCIONES DE CONSOLA SERIAL ---
   const addConsoleMessage = useCallback((type: ConsoleMessage['type'], message: string) => {
-    setConsoleMessages(prev => [...prev, {
+    setConsoleMessages(prev => [
+      {
       id: `${Date.now()}-${Math.random()}`,
       type,
       message,
       timestamp: new Date()
-    }]);
+      },
+      ...prev
+    ]);
   }, []);
 
   const clearConsole = useCallback(() => setConsoleMessages([]), []);
@@ -177,7 +179,7 @@ void loop() {
   }, [addConsoleMessage]);
 
   const saveProject = useCallback(async (blocklyXml: string, code: string) => {
-    // FIX IMPORTANTE: Usar el código del editor (generatedCode) si existe, 
+    // IMPORTANTE: Usar el código del editor (generatedCode) si existe, 
     // para no perder los cambios manuales al guardar.
     const codeToSave = generatedCode || code;
 

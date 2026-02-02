@@ -12,7 +12,7 @@ interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
+//Login
 export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const { signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
